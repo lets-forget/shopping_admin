@@ -1,7 +1,7 @@
 # shopping_admin
 springboot &amp;  shiro 商城后台管理系统
 
-shopping_admin是商城后台管理系统，使用Spring Boot，Shiro和Layui构建。商城：(http://www.ningkangwen.com)
+shopping_admin是商城后台管理系统，使用Spring Boot，Shiro和Layui构建。商城：(http://www.ningkangwen.com) 前端模：https://demo.easyweb.vip/iframe/
 
 ### 演示地址
 
