@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ning.home_admin.sytem.mapper.ItemMapper">
+  <resultMap id="BaseResultMap" type="com.ning.home_admin.sytem.pojo.Item">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="item_cid" jdbcType="INTEGER" property="itemCid" />
+    <result column="item_title" jdbcType="VARCHAR" property="itemTitle" />
+    <result column="item_price" jdbcType="DOUBLE" property="itemPrice" />
+    <result column="item_image" jdbcType="VARCHAR" property="itemImage" />
+    <result column="item_sales" jdbcType="INTEGER" property="itemSales" />
+    <result column="item_stats" jdbcType="INTEGER" property="itemStats" />
+    <result column="item_creatime" jdbcType="TIMESTAMP" property="itemCreatime" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from jd_item
+    where
+    <foreach collection="array" item="ids" open="id in (" close=")" separator=",">
+      #{ids}
+    </foreach>
+
+  </delete>
+  <insert id="insert" parameterType="com.ning.home_admin.sytem.pojo.Item">
+    insert into jd_item (id, item_cid, item_title, 
+      item_price, item_image, item_sales, 
+      item_creatime)
+    values (#{id,jdbcType=INTEGER}, #{itemCid,jdbcType=INTEGER}, #{itemTitle,jdbcType=VARCHAR}, 
+      #{itemPrice,jdbcType=DOUBLE}, #{itemImage,jdbcType=VARCHAR}, #{itemSales,jdbcType=INTEGER}, 
+      #{itemCreatime,jdbcType=DATE})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.ning.home_admin.sytem.pojo.Item">
+    update jd_item
+    set item_cid = #{c_name},
+      item_title = #{itemTitle,jdbcType=VARCHAR},
+      item_price = #{itemPrice,jdbcType=DOUBLE},
+      item_stats = #{itemStats,jdbcType=INTEGER},
+      item_creatime = #{itemCreatime},
+      item_sales = #{itemSales,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <!--修改商品状态-->
+  <update id="updateStatus">
+    update jd_item
+    set
+    <if test="param2 ==true">
+      item_stats = 1
+    </if>
+    <if test="param2 ==false">
+      item_stats = 0
+    </if>
+    where id = #{param1}
+  </update>
+  <!--修改多个商品的状态-->
+  <update id="updateStatsAll">
+    update jd_item
+    set
+    <if test="param2 ==true">
+      item_stats = 1
+    </if>
+    <if test="param2 ==false">
+      item_stats = 0
+    </if>
+    where
+    <foreach collection="param1" item="ids" open="id in( " close=")" separator=",">
+      #{ids}
+    </foreach>
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, item_cid, item_title, item_price, item_image, item_sales,item_stats, item_creatime
+    from jd_item
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select i.id, i.item_cid, i.item_title, i.item_price, i.item_image, i.item_sales,i.item_stats, i.item_creatime,
+    c.c_name
+    from jd_item i left join jd_category c on c.c_id=i.item_cid
+    <where>
+      <if test="itemId != null and itemId != '' ">
+        and i.id=#{itemId}
+      </if>
+      <if test="title != null">
+        and i.item_title like concat('%',#{title},'%')
+      </if>
+      <if test="cId != null and cId != '' ">
+        and c.c_id=#{cId}
+      </if>
+      <if test="stats != null ">
+        and i.item_stats =#{stats}
+      </if>
+      <if test="startTime !=null and startTime!='' ">
+        and i.item_creatime &gt;=#{startTime}
+      </if>
+      <if test="endTime !=null and endTime!='' ">
+        and  i.item_creatime &lt;=#{endTime}
+      </if>
+    </where>
+  </select>
+</mapper>

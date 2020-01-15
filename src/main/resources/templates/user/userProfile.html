@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>用户列表</title>
+    <link rel="stylesheet" href="/assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/assets/module/admin.css?v=315"/>
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        .layui-card-body {
+            padding: 0;
+        }
+
+        .theme-div {
+            padding-left: 15px;
+            padding-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .btnTheme {
+            display: inline-block;
+            margin: 0 6px 15px 0;
+            padding: 4px;
+            border: 1px solid #fff;
+        }
+
+        .btnTheme img {
+            width: 80px;
+            height: 50px;
+            border: 1px solid #f2f2f2;
+            background: #F2F2F2;
+            cursor: pointer;
+        }
+
+        .btnTheme:hover, .btnTheme.active {
+            border-color: #5FB878;
+        }
+
+        .more-menu-item {
+            display: block;
+            height: 50px;
+            line-height: 50px;
+            font-size: 16px;
+            border-bottom: 1px solid #e8e8e8;
+            color: #333;
+            padding: 0px 25px;
+            font-style: normal;
+        }
+
+        .more-menu-item:first-child {
+            border-top: 1px solid #e8e8e8;
+        }
+
+        .more-menu-item:hover {
+            background: #F2F2F2;
+            color: #333;
+        }
+
+        .more-menu-item .layui-icon {
+            padding-right: 10px;
+            font-size: 18px;
+        }
+
+        .more-menu-item:after {
+            content: "\e602";
+            font-family: layui-icon !important;
+            position: absolute;
+            right: 16px;
+            color: #999;
+        }
+
+        .more-menu-item.no-icon:after {
+            content: "";
+        }
+
+        /** 设置表单样式 */
+        .set-item-label {
+            display: inline-block;
+            height: 38px;
+            line-height: 38px;
+            padding-left: 20px;
+            color: #333333;
+        }
+
+        .set-item-ctrl {
+            display: inline-block;
+            height: 38px;
+            line-height: 38px;
+        }
+
+        .set-item-ctrl > * {
+            margin: 0;
+        }
+
+        .user-info-head {
+            width: 110px;
+            height: 110px;
+            position: relative;
+            display: inline-block;
+            border-radius: 50%;
+            border: 2px solid #eee;
+        }
+
+        .user-info-head:hover:after {
+            content: '\e65d';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            color: #eee;
+            background: rgba(0, 0, 0, 0.5);
+            font-family: layui-icon;
+            font-size: 24px;
+            font-style: normal;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            cursor: pointer;
+            line-height: 110px;
+            border-radius: 50%;
+        }
+
+        .user-info-head img {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+        }
+
+        .info-list-item {
+            position: relative;
+            padding-bottom: 8px;
+        }
+
+        .info-list-item > .layui-icon {
+            position: absolute;
+        }
+
+        .info-list-item > p {
+            padding-left: 30px;
+        }
+
+        .dash {
+            border-bottom: 1px dashed #ccc;
+            margin: 15px 0;
+        }
+
+        .bd-list-item {
+            padding: 14px 0;
+            border-bottom: 1px solid #e8e8e8;
+            position: relative;
+        }
+
+        .bd-list-item .bd-list-item-img {
+            width: 48px;
+            height: 48px;
+            line-height: 48px;
+            margin-right: 12px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .bd-list-item .bd-list-item-content {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .bd-list-item .bd-list-item-lable {
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .bd-list-item .bd-list-item-oper {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            text-decoration: none !important;
+            cursor: pointer;
+            transform: translateY(-50%);
+        }
+
+        .user-info-form .layui-form-item {
+            margin-bottom: 25px;
+        }
+
+         #update-user-info {
+            cursor: pointer;
+            margin-left: -1rem;
+        }
+
+         #options-wrapper a {
+            padding: 4px 6px;
+            color: rgba(0, 0, 0, 0.65);
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+        }
+
+         #options-wrapper a:hover {
+            color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        #nkw-avatar img {
+            width: 5rem;
+            border-radius: 50%;
+            margin: .5rem;
+            cursor: pointer;
+        }
+
+        #nkw-avatar .layui-tab-item {
+            margin-left: 1rem;
+        }
+    </style>
+
+</head>
+<body>
+
+<!-- 页面加载loading -->
+<div class="page-loading">
+    <div class="ball-loader">
+        <span></span><span></span><span></span><span></span>
+    </div>
+</div>
+
+<!-- 用户修改 -->
+<script type="text/html" id="modelAuth">
+    <form id="modelAuthForm" lay-filter="modelAuthForm" class="layui-form model-form">
+        <input name="userId" type="hidden" th:value="${user.userId}"/>
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户名</label>
+            <div class="layui-input-block">
+                <input name="username" placeholder="请输入用户名" type="text" class="layui-input"
+                       lay-verType="tips" lay-verify="required" th:value="${user.username}" required readonly/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">手机号</label>
+            <div class="layui-input-block">
+                <input name="phone" placeholder="请输入手机号" type="text" class="layui-input"
+                       lay-verType="tips" lay-verify="required|phone" th:value="${user.phone}" required/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">邮箱</label>
+            <div class="layui-input-block">
+                <input name="email" placeholder="请输入邮箱" type="text" class="layui-input"
+                       lay-verType="tips" lay-verify="required|email" th:value="${user.email}" required/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">性别</label>
+            <div class="layui-input-block">
+                <input type="radio" name="sex" value="1" title="男"  th:field="*{user.sex}"/>
+                <input type="radio" name="sex" value="0" title="女"  th:field="*{user.sex}"/>
+                <input type="radio" name="sex" value="2" title="保密"  th:field="*{user.sex}"/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">个人简介</label>
+            <div class="layui-input-block">
+                    <textarea name="describes" placeholder="请输入个人简介" class="layui-textarea"
+                              lay-verType="tips" lay-verify="required" required autocomplete="off" maxlength="200" th:text="${user.describes}"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item text-right">
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closePageDialog">取消</button>
+            <button class="layui-btn" lay-filter="modelSubmitAuth" lay-submit>保存</button>
+        </div>
+    </form>
+</script>
+
+<!-- 正文开始 -->
+<div class="layui-fluid" id="nkw-user-profile">
+    <div class="layui-row layui-col-space15">
+        <!-- 左 -->
+        <div class="layui-col-md6 layui-col-sm6 layui-col-xs12">
+            <div class="layui-card">
+                <div class="layui-card-body" style="padding: 25px;">
+                    <div class="text-center layui-text">
+                        <div class="user-info-head" id="imgHead">
+                            <img th:src="${user.avatar}"/>
+                        </div>
+                        <div id="options-wrapper" style="padding-top: 20px;">
+                            <div id="update-user-info">
+                                <a>
+                                    <span class="layui-icon layui-icon-set-sm"></span>
+                                    编辑资料
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-text" style="padding-top: 30px;">
+                        <div class="info-list-item">
+                            <i class="layui-icon layui-icon-username"></i>
+                            <p th:text="${user.username}"></p>
+                        </div>
+                        <div class="info-list-item">
+                            <i class="layui-icon layui-icon-group"></i>
+                            <p th:text="${user.roleName}"></p>
+                        </div>
+                        <div class="info-list-item">
+                            <i th:class="${user.sex}==1?'layui-icon layui-icon-male':${user.sex==2?'layui-icon layui-icon-male':'layui-icon layui-icon-female'}"></i>
+                            <p th:text="${user.sex}==1?'男':${user.sex==2?'保密':'女'}"></p>
+                        </div>
+                        <div class="info-list-item">
+                            <i class="layui-icon layui-icon-cellphone"></i>
+                            <p th:text="${user.phone}"></p>
+                        </div>
+                        <div class="info-list-item">
+                            <i class="layui-icon layui-icon-dialogue"></i>
+                            <p th:text="${user.email}"></p>
+                        </div>
+                        <div class="info-list-item">
+                            <i class="layui-icon layui-icon-read"></i>
+                            <p th:text="${user.describes}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 右 -->
+        <div class="layui-col-md6 layui-col-sm6 layui-col-xs12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+
+                    <!-- 主题列表 -->
+                    <div class="theme-div"></div>
+
+                    <!-- 控制开关 -->
+                    <div class="layui-form" style="margin: 25px 0;">
+                        <div class="layui-form-item">
+                            <label class="set-item-label">页&emsp;脚：</label>
+                            <div class="set-item-ctrl">
+                                <input id="setFooter" lay-filter="setFooter" type="checkbox" lay-skin="switch" lay-text="开启|关闭">
+                            </div>
+                            <label class="set-item-label"> Tab&nbsp;记忆：</label>
+                            <div class="set-item-ctrl">
+                                <input id="setTab" lay-filter="setTab" type="checkbox" lay-skin="switch" lay-text="开启|关闭">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="set-item-label">多标签：</label>
+                            <div class="set-item-ctrl">
+                                <input id="setMoreTab" lay-filter="setMoreTab" type="checkbox" lay-skin="switch" lay-text="开启|关闭">
+                            </div>
+                            <label class="set-item-label">切换刷新：</label>
+                            <div class="set-item-ctrl">
+                                <input id="setRefresh" lay-filter="setRefresh" type="checkbox" lay-skin="switch" lay-text="开启|关闭">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="set-item-label">导航箭头：</label>
+                            <div class="set-item-ctrl">
+                                <input lay-filter="navArrow" type="radio" value="" title="默认" name="navArrow">
+                                <input lay-filter="navArrow" type="radio" value="arrow2" title="箭头" name="navArrow">
+                                <input lay-filter="navArrow" type="radio" value="arrow3" title="加号" name="navArrow">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript" src="/assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="/assets/js/common.js?v=315"></script>
+<script>
+    layui.use(['layer', 'form', 'admin','element','notice'], function () {
+        var $ = layui.jquery;
+        var $view = $('#nkw-user-profile');
+        var layer = layui.layer;
+        var element = layui.element;
+        var form = layui.form;
+        var notice = layui.notice;
+        var admin = layui.admin;
+        var leftNav = '.layui-layout-admin>.layui-side>.layui-side-scroll>.layui-nav';
+        var mainTab = '.layui-body>.layui-tab[lay-filter="admin-pagetabs"]';
+        var $avatar = $('#nkw-avatar');
+
+        var themes = [
+            {title: '黑白主题', theme: 'admin'},
+            {title: '黑色主题', theme: 'black'},
+            {title: '蓝色主题', theme: 'blue'},
+            {title: '藏青主题', theme: 'cyan'},
+            {title: '黄色主题', theme: 'yellow'},
+            {title: '绿色主题', theme: 'green'},
+            {title: '粉红主题', theme: 'pink'},
+            {title: '紫白主题', theme: 'purple-white'},
+            {title: '紫色主题', theme: 'purple'},
+            {title: '白色主题', theme: 'white'},
+            {title: '红白主题', theme: 'red-white'},
+            {title: '红色主题', theme: 'red'}
+        ];
+        for (var i = 0; i < themes.length; i++) {
+            var str = '<div class="btnTheme" theme="theme-' + themes[i].theme + '" title="' + themes[i].title + '">';
+            str += '      <img src="../../assets/module/theme/img/theme-' + themes[i].theme + '.png">';
+            str += '   </div>';
+            $('.theme-div').append(str)
+        }
+
+        // 切换主题
+        var mTheme = layui.data(admin.tableName).theme;
+        console.log(mTheme);
+        $('.btnTheme[theme=' + (mTheme ? mTheme : admin.defaultTheme) + ']').addClass('active');
+        $('.btnTheme').click(function () {
+            $('.btnTheme').removeClass('active');
+            $(this).addClass('active');
+            admin.changeTheme($(this).attr('theme'));
+        });
+
+        // 关闭/开启页脚
+        var openFooter = layui.data(admin.tableName).openFooter;
+        $('#setFooter').prop('checked', openFooter == undefined ? true : openFooter);
+        form.on('switch(setFooter)', function (data) {
+            var checked = data.elem.checked;
+            layui.data(admin.tableName, {key: 'openFooter', value: checked});
+            checked ? top.layui.jquery('body.layui-layout-body').removeClass('close-footer') : top.layui.jquery('body.layui-layout-body').addClass('close-footer');
+        });
+
+        // 关闭/开启Tab记忆功能
+        $('#setTab').prop('checked', top.layui.index.cacheTab);
+        form.on('switch(setTab)', function (data) {
+            top.layui.index.setTabCache(data.elem.checked);
+        });
+
+        // 切换Tab自动刷新
+        var tabAutoRefresh = layui.data(admin.tableName).tabAutoRefresh;
+        $('#setRefresh').prop('checked', tabAutoRefresh == undefined ? false : tabAutoRefresh);
+        form.on('switch(setRefresh)', function (data) {
+            var checked = data.elem.checked;
+            layui.data(admin.tableName, {key: 'tabAutoRefresh', value: checked});
+            checked ? top.layui.jquery(mainTab).attr('lay-autoRefresh', 'true') : top.layui.jquery(mainTab).removeAttr('lay-autoRefresh');
+        });
+
+        // 关闭/开启多标签
+        var openTab = layui.data(admin.tableName).openTab;
+        $('#setMoreTab').prop('checked', openTab == undefined ? top.layui.index.pageTabs : openTab);
+        form.on('switch(setMoreTab)', function (data) {
+            var checked = data.elem.checked;
+            layui.data(admin.tableName, {key: 'openTab', value: checked});
+            admin.putTempData('indexTabs', undefined);  // 清除缓存的Tab
+            top.location.reload();
+        });
+
+        // 导航小三角
+        var navArrow = layui.data(admin.tableName).navArrow;
+        if (navArrow == undefined) {
+            var $sideNav = top.layui.jquery('.layui-side .layui-nav-tree');
+            navArrow = $sideNav.hasClass('arrow2') ? 'arrow2' : $sideNav.hasClass('arrow3') ? 'arrow3' : '';
+        }
+        $('[name="navArrow"][value="' + (navArrow ? navArrow : '') + '"]').prop('checked', 'true');
+        form.on('radio(navArrow)', function (data) {
+            layui.data(admin.tableName, {key: 'navArrow', value: data.value});
+            top.layui.jquery(leftNav).removeClass('arrow2 arrow3');
+            data.value && top.layui.jquery(leftNav).addClass(data.value);
+        });
+
+        form.render('checkbox');
+        form.render('radio');
+
+        $view.on('click',"#update-user-info",function () {
+            admin.open({
+                type: 1,
+                title: "用户修改",
+                area: [$(window).width() <= 750 ? '95%' : '630px',$(window).width() <= 750 ? '95%' : '465px'],
+                content: $('#modelAuth').html(),
+                success:function (layero,index) {
+                    form.render('radio');
+
+                    form.on('submit(modelSubmitAuth)', function (data) {
+                        $.post('/admin/updateDetail', data.field, function (res) {
+                            if (res.code === 200) {
+                                layer.close(index);
+                                notice.msg("修改信息成功",{icon:1,timeout:2000,animateInside:true,audio:'1'});
+                                layer.confirm('是否马上刷新页面生效？',{icon:3, title:'修改成功',skin:'layui-layer-admin'},function(index){
+                                    window.location.reload();
+                                });
+                            } else {
+                                notice.msg(data.msg,{icon:2,timeout:2000,animateInside:true,audio:'1'});
+                            }
+                        }, 'json');
+                        return false;
+                    });
+                }
+            });
+        })
+
+
+        $view.on('click','.user-info-head',function () {
+            top.layui.admin.open({
+                type: 2
+                ,title: '修改头像'
+                ,area: [$(window).width() <= 750 ? '95%' : '800px',$(window).width() <= 750 ? '95%' : '450px']
+                ,content: '/avatar',
+            });
+        });
+
+    });
+</script>
+
+</body>
+</html>

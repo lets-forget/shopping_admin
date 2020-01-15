@@ -1,0 +1,315 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="/assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/assets/module/admin.css?v=315"/>
+    <link rel="stylesheet" href="/assets/module/eleTree/eleTree.css"/>
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<!-- 加载动画 -->
+<div class="page-loading">
+    <div class="ball-loader">
+        <span></span><span></span><span></span><span></span>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <!-- 左表 -->
+        <div class="layui-col-md7 layui-col-sm6 layui-col-xs12">
+            <div class="layui-card">
+                <div class="layui-card-body" style="min-height: 535px;">
+
+                    <div class="layui-form toolbar">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label w-auto">角色名称</label>
+                                <div class="layui-input-inline mr0">
+                                    <input type="text" name="username" id="username" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <button class="layui-btn icon-btn" lay-filter="formSubSearchTbLtrt" data-type="reload" lay-submit>
+                                    <i class="layui-icon">&#xe615;</i>搜索
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="layui-table" id="tableTbTree" lay-filter="tableTbTree"></table>
+                </div>
+            </div>
+        </div>
+        <!-- 右树 -->
+        <div class="layui-col-md5 layui-col-sm6 layui-col-xs12">
+            <div class="layui-card">
+                <div class="layui-card-header" id="form-header">新增角色</div>
+                <div class="layui-card-body" style="min-height: 535px;">
+                    <form class="layui-form layui-table-form" action="" lay-filter="role-form">
+                        <div class="layui-form-item layui-hide">
+                            <label class="layui-form-label febs-form-item-require">角色ID：</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="roleId" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label febs-form-item-require">角色名称：</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="roleName" autocomplete="off"  lay-verify="required"  class="layui-input" minlength="2"
+                                       maxlength="10" lay-verType="tips">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">角色描述：</label>
+                            <div class="layui-input-block">
+                                <textarea name="remark" maxlength="50" class="layui-textarea"  lay-verify="required" lay-verType="tips"></textarea>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">角色权限：</label>
+                            <div class="layui-input-block menu-tree" style="margin-top: .8rem;"></div>
+                        </div>
+                        <shiro:hasPermission name="role:add">
+                            <div class="layui-form-item">
+                                <button type="reset" class="layui-btn layui-hide" id="reset-form">重置</button>
+                                <button class="layui-btn" data-type="reload" style="margin-left:80%;"  lay-submit lay-filter="role-form-submit"
+                                        id="submit-form" >保存</button>
+                            </div>
+                        </shiro:hasPermission>
+                        <shiro:lacksPermission name="role:add">
+                            <button class="layui-btn" style="margin-left:80%;" disabled>无权限</button>
+                        </shiro:lacksPermission>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/html" id="role-option">
+    <i class="layui-icon layui-icon-set-sm" style="font-size: 20px; color: blue;" lay-event="edit"></i>
+    <shiro:hasPermission name="role:delete">
+        <i class="layui-icon layui-icon-delete" style="font-size: 20px; color: red;" lay-event="del"></i>
+    </shiro:hasPermission>
+</script>
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <shiro:hasPermission name="role:delete">
+            <button class="layui-btn layui-btn-sm" lay-event="delete">删除选中</button>
+        </shiro:hasPermission>
+        <shiro:lacksPermission name="role:delete">
+            <button class="layui-btn layui-btn-sm" disabled>无权限</button>
+        </shiro:lacksPermission>
+    </div>
+</script>
+<script type="text/javascript" src="/assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="/assets/js/common.js?v=315"></script>
+<script>
+    layui.use(['eleTree', 'form','table','notice'], function() {
+        var $ = layui.$,
+            eleTree = layui.eleTree,
+            form = layui.form,
+            table = layui.table,
+            notice=layui.notice;
+
+        var talbeIns=table.render({
+            elem: '#tableTbTree'
+            ,url:'/role/tablelist'
+            ,toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+            ,defaultToolbar: ['print', 'exports', { //自定义头部工具栏右侧图标。如无需自定义，去除该参数即可
+                title: '刷新'
+                ,layEvent: 'reset'
+                ,icon: 'layui-icon-refresh'
+            }]
+            ,cols: [
+                [
+                    {type: 'checkbox'},
+                    {field: 'roleName', title: '角色名称', minWidth: 120},
+                    {field: 'remark', title: '角色描述'},
+                    {field: 'createTimeStr', title: '创建时间', minWidth: 180},
+                    {title: '操作', toolbar: '#role-option',align:'center'}
+                ]
+            ]
+            ,page: true
+            ,limit:10
+            , limits: [ 5, 10, 15, 20,25]
+            , loading: true
+        });
+
+        table.on('toolbar(tableTbTree)',function (obj) {
+            var data = obj.data,
+                layEvent = obj.event;
+            if (layEvent==='delete'){
+                var checkStatus = table.checkStatus(obj.config.id);
+                if (!checkStatus.data.length){
+                    notice.msg("请选择要删除的数据！！",{icon:5,timeout:2000,animateInside:true,audio:'1'});
+                }else{
+                    layer.confirm('确定删除多个角色？',{icon:3, title:'提示信息',skin:'layui-layer-admin'},function(index){
+                        var roleIds = [];
+                        layui.each(checkStatus.data, function (key, item) {
+                            roleIds.push(item.roleId);
+                        });
+                        $.get('/role/delete/'+ roleIds,function(data){
+                            if (data.code==200){
+                                talbeIns.reload();
+                                layer.close(index);
+                                notice.msg("删除多个角色",{icon:1,timeout:2000,animateInside:true,audio:'1'});
+                            } else{
+                                notice.msg(data.message,{icon:2,timeout:2000,animateInside:true,audio:'1'});
+                            }
+                        });
+                    });
+                }
+            }
+            if (layEvent==='reset'){
+                resetRoleForm();
+            }
+        });
+
+        function resetRoleForm(){
+            $("#form-header").text('新增角色');
+            $("#reset-form").click();
+            menuTree.setChecked([], true);
+            menuTree.unExpandAll();
+            talbeIns.reload();
+        }
+
+        table.on('tool(tableTbTree)', function (obj) {
+            var data = obj.data,
+                layEvent = obj.event;
+            if (layEvent === 'edit') {
+                $("#form-header").text('修改角色');
+                form.val("role-form", {
+                    "roleId": data.roleId,
+                    "roleName": data.roleName,
+                    "remark": data.remark
+                });
+                if (data.menuIds) {
+                    menuTree.setChecked(data.menuIds.split(','), true);
+                } else {
+                    menuTree.setChecked([], true);
+                }
+            }
+            if (layEvent === 'del') {
+                layer.confirm('您确定删除该角色？',{icon:3, title:'提示信息',skin:'layui-layer-admin'}, function (index) {
+                    deleteRoles(data.roleId,index);
+                });
+            }
+        });
+
+        form.on('submit(role-form-submit)', function (data) {
+            var selected = menuTree.getChecked(false, true);
+            var menuIds = [];
+            layui.each(selected, function (key, item) {
+                menuIds.push(item.id)
+            });
+            data.field.menuIds = menuIds.join(',');
+            if (!menuIds.length) {
+                layer.confirm('当前角色未授予任何权限，是否继续？',{icon:3, title:'提示信息',skin:'layui-layer-admin'},function(index){
+                    addOrUpdateRole(data.field,index);
+                });
+            } else {
+                addOrUpdateRole(data.field,1);
+            }
+            return false;
+        });
+
+        function deleteRoles(roleIds,index) {
+            $.get('/role/delete/'+ roleIds, null, function (data) {
+                if (data.code==200){
+                    layer.close(index);
+                    talbeIns.reload();
+                    notice.msg("删除角色成功",{icon:1,timeout:2000,animateInside:true,audio:'1'});
+                } else{
+                    notice.msg(data.message,{icon:2,timeout:2000,animateInside:true,audio:'1'});
+                }
+
+            })
+        }
+
+        function addOrUpdateRole (data,index) {
+            if (data.roleId&&$("#form-header").text() === '修改角色') {
+                $.post('/role/update', data, function (data) {
+                    if (data.code==200){
+                        layer.close(index);
+                        resetRoleForm();
+                        notice.msg('修改角色成功',{icon:1,timeout:2000,animateInside:true,audio:'1'});
+                    } else{
+                        notice.msg(data.message,{icon:2,timeout:2000,animateInside:true,audio:'1'});
+                    }
+
+                });
+            } else {
+                $.post('/role/add', data, function (data) {
+                    if (data.code===200){
+                        layer.close(index);
+                        talbeIns.reload();
+                        resetRoleForm();
+                        notice.msg('新增角色成功',{icon:1,timeout:2000,animateInside:true,audio:'1'});
+                    } else{
+                        notice.msg(data.message,{icon:2,timeout:2000,animateInside:true,audio:'1'});
+                    }
+                });
+            }
+        }
+
+        //表单刷新
+        var active = {
+            reload: function(){
+                var username = $('#username');
+                //执行重载
+                table.reload('tableTbTree', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        username: username.val(),
+                    }
+                }, 'data');
+            }
+        };
+        //点击搜索按钮
+        form.on("submit(formSubSearchTbLtrt)",function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        })
+
+        //所有角色
+        var menuTree = eleTree.render({
+            elem: '.menu-tree',
+            url: '/menu/tree',
+            showCheckbox: true,
+            where: {
+                "invalidate_ie_cache": new Date()
+            },
+            accordion: true,
+            checkStrictly: true,
+            renderAfterExpand: false,
+            request: {
+                name: "title",
+                key: "id",
+                children: "childs",
+                checked: "checked",
+                data: "data"
+            },
+            response: {
+                statusName: "code",
+                statusCode: 200,
+                dataName: "data"
+            }
+        });
+
+    });
+</script>
+
+</body>
+</html>

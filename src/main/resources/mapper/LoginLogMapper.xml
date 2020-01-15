@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ning.home_admin.monitor.mapper.LoginLogMapper">
+  <resultMap id="BaseResultMap" type="com.ning.home_admin.monitor.entity.LoginLog">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="login_time" jdbcType="TIMESTAMP" property="loginTime" />
+    <result column="location" jdbcType="VARCHAR" property="location" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="log_system" jdbcType="VARCHAR" property="logSystem" />
+    <result column="browser" jdbcType="VARCHAR" property="browser" />
+  </resultMap>
+  <!--总访问量-->
+  <select id="findTotalVisitCount" resultType="long">
+        select count(1) from admin_login_log
+   </select>
+  <!--今日的总访问量-->
+  <select id="findTodayVisitCount" resultType="long">
+    select count(1) from admin_login_log where datediff(login_time,now())=0
+  </select>
+  <!--访问今日系统的IP数-->
+  <select id="findTodayIp" resultType="long">
+     select count(distinct(ip)) from admin_login_log where datediff(login_time,now())=0
+  </select>
+  <!--获取近期系统信息-->
+  <select id="findLastSevenDaysVisitCount"  resultType="java.util.Map" parameterType="com.ning.home_admin.sytem.pojo.User">
+    select
+    date_format(l.login_time, '%m-%d') days,
+    count(1) count
+    from
+    (
+    select
+    *
+    from
+    admin_login_log
+    where
+    date_sub(curdate(), interval 10 day) &lt;= date(login_time)
+    ) as l where 1 = 1
+    <if test="username != null and username != ''">
+      and l.username = #{username}
+    </if>
+    group by
+    days
+  </select>
+  <!--删除单个-->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from admin_login_log
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <!--删除多个-->
+  <delete id="deleteAllByIds" parameterType="java.lang.String">
+    delete from admin_login_log
+    where
+    <foreach collection="array" item="ids" index="index" open=" id in(" separator="," close=")">
+      #{ids}
+    </foreach>
+  </delete>
+  <insert id="insert" parameterType="com.ning.home_admin.monitor.entity.LoginLog">
+    insert into admin_login_log (username, login_time,
+      location, ip, log_system,
+      browser)
+    values (#{username,jdbcType=VARCHAR}, #{loginTime,jdbcType=TIMESTAMP},
+      #{location,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{logSystem,jdbcType=VARCHAR},
+      #{browser,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.ning.home_admin.monitor.entity.LoginLog">
+    update admin_login_log
+    set username = #{username,jdbcType=VARCHAR},
+      login_time = #{loginTime,jdbcType=TIMESTAMP},
+      location = #{location,jdbcType=VARCHAR},
+      ip = #{ip,jdbcType=VARCHAR},
+      log_system = #{logSystem,jdbcType=VARCHAR},
+      browser = #{browser,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, username, login_time, location, ip, log_system, browser
+    from admin_login_log
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, username, login_time, location, ip, log_system, browser
+    from admin_login_log ORDER BY login_time desc
+  </select>
+  <!--根据username刷新表格-->
+  <select id="selectAllByUsername" resultMap="BaseResultMap" parameterType="com.ning.home_admin.commons.entity.Page">
+    select id, username, login_time, location, ip, log_system, browser
+    from admin_login_log
+    <where>
+      <if test="username !=null and username!='' ">
+        and  username like concat('%',#{username},'%')
+      </if>
+
+      <if test="startTime !=null and startTime!='' ">
+         and login_time &gt;=#{startTime}
+      </if>
+
+      <if test="endTime !=null and endTime!='' ">
+       and  login_time &lt;=#{endTime}
+      </if>
+    </where>
+    ORDER BY login_time desc
+  </select>
+</mapper>

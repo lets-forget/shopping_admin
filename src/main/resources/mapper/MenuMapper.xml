@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ning.home_admin.sytem.mapper.MenuMapper">
+  <resultMap id="BaseResultMap" type="com.ning.home_admin.sytem.pojo.Menu">
+    <id column="menu_id" jdbcType="INTEGER" property="menuId" />
+    <result column="role_id" jdbcType="INTEGER" property="roleId" />
+    <result column="menu_name" jdbcType="VARCHAR" property="menuName" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="icon" jdbcType="VARCHAR" property="icon" />
+    <result column="type" jdbcType="CHAR" property="type" />
+    <result column="order_num" jdbcType="BIGINT" property="orderNum" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="perms" jdbcType="LONGVARCHAR" property="perms" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from admin_menu
+    where menu_id = #{menuId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ning.home_admin.sytem.pojo.Menu">
+    insert into admin_menu (menu_id, role_id, menu_name, 
+      url, icon, type, order_num, 
+      create_time, modify_time, perms
+      )
+    values (#{menuId,jdbcType=INTEGER}, #{roleId,jdbcType=INTEGER}, #{menuName,jdbcType=VARCHAR}, 
+      #{url,jdbcType=VARCHAR}, #{icon,jdbcType=VARCHAR}, #{type,jdbcType=CHAR}, #{orderNum,jdbcType=BIGINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, #{perms,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.ning.home_admin.sytem.pojo.Menu">
+    update admin_menu
+    set role_id = #{roleId,jdbcType=INTEGER},
+      menu_name = #{menuName,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      icon = #{icon,jdbcType=VARCHAR},
+      type = #{type,jdbcType=CHAR},
+      order_num = #{orderNum,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      perms = #{perms,jdbcType=LONGVARCHAR}
+    where menu_id = #{menuId,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select menu_id, role_id, menu_name, url, icon, type, order_num, create_time, modify_time, 
+    perms
+    from admin_menu
+    where menu_id = #{menuId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select menu_id, role_id, menu_name, url, icon, type, order_num, create_time, modify_time, 
+    perms
+    from admin_menu
+  </select>
+
+  <select id="findUserPermissions" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT
+            m.perms
+        FROM
+            admin_role r
+        LEFT JOIN admin_user_role ur ON (r.role_id = ur.role_id)
+        LEFT JOIN admin_user u ON (u.user_id = ur.user_id)
+        LEFT JOIN admin_role_menu rm ON (rm.role_id = r.role_id)
+        LEFT JOIN admin_menu m ON (m.menu_id = rm.menu_id)
+        WHERE
+            u.username = #{username}
+        AND m.perms is not null
+        AND m.perms &lt;&gt; ''
+    </select>
+</mapper>

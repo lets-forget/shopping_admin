@@ -1,0 +1,28 @@
+/*公共样式*/
+.main_body{ min-width:320px; }
+
+.main_bg{
+	position: relative;
+}
+#time{
+	font-family: "Consolas";
+	font-size: 60px;
+	text-align: center;
+	margin-top: 30%;
+	
+}
+.main_bg .box{
+	position:absolute;
+	width: 700px;
+    left:50%;
+    transform:translate(-50%,0);
+	font-family: "Helvetica Neue", Helvetica, "PingFang SC", 微软雅黑, Tahoma, Arial, sans-serif ;
+	top: 75%;
+}
+.main_bg .box p{
+	font-size:30px;
+	color: #509AD4;
+	margin-top: 25px;
+	font-weight: bold;
+	text-align: center;
+}

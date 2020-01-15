@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ning.home_admin.monitor.mapper.LogMapper">
+  <resultMap id="BaseResultMap" type="com.ning.home_admin.monitor.entity.Log">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="time" jdbcType="DECIMAL" property="time" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="location" jdbcType="VARCHAR" property="location" />
+    <result column="operation" jdbcType="LONGVARCHAR" property="operation" />
+    <result column="method" jdbcType="LONGVARCHAR" property="method" />
+    <result column="params" jdbcType="LONGVARCHAR" property="params" />
+  </resultMap>
+  <!--删除当个日志-->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from admin_log
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <!--删除多个日志-->
+  <delete id="deleteAllByIds" parameterType="java.lang.String">
+    delete from admin_log
+    <where>
+      <foreach collection="array" item="ids" open="id in(" separator="," close=")">
+        #{ids}
+      </foreach>
+    </where>
+  </delete>
+
+  <insert id="insert" parameterType="com.ning.home_admin.monitor.entity.Log">
+    insert into admin_log (username, time,
+      ip, create_time, location, 
+      operation, method, params
+      )
+    values (#{username,jdbcType=VARCHAR}, #{time,jdbcType=DECIMAL},
+      #{ip,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{location,jdbcType=VARCHAR}, 
+      #{operation,jdbcType=LONGVARCHAR}, #{method,jdbcType=LONGVARCHAR}, #{params,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.ning.home_admin.monitor.entity.Log">
+    update admin_log
+    set username = #{username,jdbcType=VARCHAR},
+      time = #{time,jdbcType=DECIMAL},
+      ip = #{ip,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      location = #{location,jdbcType=VARCHAR},
+      operation = #{operation,jdbcType=LONGVARCHAR},
+      method = #{method,jdbcType=LONGVARCHAR},
+      params = #{params,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, username, time, ip, create_time, location, operation, method, params
+    from admin_log
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" parameterType="com.ning.home_admin.commons.entity.Page">
+    select id, username, time, ip, create_time, location, operation, method, params
+    from admin_log
+    <where>
+      <if test="username !=null and username!='' ">
+        and  username like concat('%',#{username},'%')
+      </if>
+
+      <if test="operation !=null and operation !='' ">
+        and operation like concat('%',#{operation},'%')
+      </if>
+      <if test="startTime !=null and startTime!='' ">
+        and create_time &gt;=#{startTime}
+      </if>
+
+      <if test="endTime !=null and endTime!='' ">
+        and  create_time &lt;=#{endTime}
+      </if>
+    </where>
+    ORDER BY create_time desc
+  </select>
+</mapper>

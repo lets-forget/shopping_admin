@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ning.home_admin.sytem.mapper.OrderMapper">
+  <resultMap id="BaseResultMap" type="com.ning.home_admin.sytem.pojo.Order">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_uid" jdbcType="INTEGER" property="orderUid" />
+    <result column="order_id" jdbcType="VARCHAR" property="orderId" />
+    <result column="order_details_id" jdbcType="VARCHAR" property="orderDetailsId" />
+    <result column="order_address_id" jdbcType="INTEGER" property="orderAddressId" />
+    <result column="order_classify" jdbcType="VARCHAR" property="orderClassify" />
+    <result column="order_title" jdbcType="VARCHAR" property="orderTitle" />
+    <result column="order_count" jdbcType="INTEGER" property="orderCount" />
+    <result column="order_image" jdbcType="VARCHAR" property="orderImage" />
+    <result column="order_price" jdbcType="DOUBLE" property="orderPrice" />
+    <result column="order_subtotal" jdbcType="DOUBLE" property="orderSubTotal" />
+    <result column="order_time" jdbcType="DATE" property="orderTime" />
+    <result column="order_shouh" jdbcType="INTEGER" property="orderShouh" />
+    <result column="order_ispay" jdbcType="INTEGER" property="orderIspay" />
+    <result column="order_type" jdbcType="INTEGER" property="orderType" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from jd_order
+    where
+    <foreach collection="array" item="ids" open="id in (" close=")" separator=",">
+      #{ids}
+    </foreach>
+  </delete>
+  <insert id="insert" parameterType="com.ning.home_admin.sytem.pojo.Order">
+    insert into jd_order (order_uid, order_id,order_details_id,order_address_id,
+      order_classify, order_title, order_count, 
+      order_image, order_price,order_subtotal, order_time,
+      order_shouh, order_ispay, order_type
+      )
+    values (#{orderUid,jdbcType=INTEGER}, #{orderId,jdbcType=VARCHAR},#{orderDetailsId},#{orderAddressId},
+      #{orderClassify,jdbcType=VARCHAR}, #{orderTitle,jdbcType=VARCHAR}, #{orderCount,jdbcType=INTEGER},
+      #{orderImage,jdbcType=VARCHAR}, #{orderPrice,jdbcType=DOUBLE}, #{orderSubTotal},#{orderTime,jdbcType=DATE},
+      #{orderShouh,jdbcType=INTEGER}, #{orderIspay,jdbcType=INTEGER}, #{orderType,jdbcType=INTEGER}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.ning.home_admin.sytem.pojo.Order">
+    update jd_order
+    set order_uid = #{orderUid,jdbcType=INTEGER},
+      order_id = #{orderId,jdbcType=VARCHAR},
+      order_details_id = #{orderDetailsId,jdbcType=VARCHAR},
+      order_address_id = #{orderAddressId},
+      order_classify = #{orderClassify,jdbcType=VARCHAR},
+      order_title = #{orderTitle,jdbcType=VARCHAR},
+      order_count = #{orderCount,jdbcType=INTEGER},
+      order_image = #{orderImage,jdbcType=VARCHAR},
+      order_price = #{orderPrice,jdbcType=DOUBLE},
+      order_subtotal = #{orderSubTotal,jdbcType=DOUBLE},
+      order_time = #{orderTime,jdbcType=DATE},
+      order_shouh = #{orderShouh,jdbcType=INTEGER},
+      order_ispay = #{orderIspay,jdbcType=INTEGER},
+      order_type = #{orderType,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectAll" resultMap="BaseResultMap">
+    select o.id, o.order_uid, o.order_id,o.order_details_id,o.order_address_id, o.order_classify, o.order_title, o.order_count, o.order_image,
+    o.order_price,o.order_subtotal, o.order_time, o.order_shouh, o.order_ispay, o.order_type,a.name,a.telephone
+    from jd_order o left join jd_address a on o.order_address_id = a.id
+    <where>
+      <if test="orderId !=null and orderId != ''">
+        and o.order_id =#{orderId}
+      </if>
+      <if test="username !=null and username!='' ">
+        and  a.name like concat('%',#{username},'%')
+      </if>
+      <if test="pay == 1">
+        and o.order_type=0
+      </if>
+      <if test="pay == 2">
+        and o.order_type=1
+      </if>
+      <if test="status ==1">
+        and o.order_ispay=0
+      </if>
+      <if test="status ==2">
+        and o.order_ispay=1
+      </if>
+      <if test="status ==3">
+        and o.order_ispay=1 and o.order_shouh=0
+      </if>
+      <if test="status ==4">
+        and o.order_ispay=1 and o.order_shouh=1
+      </if>
+      <if test="startTime !=null and startTime!='' ">
+        and o.order_time &gt;=#{startTime}
+      </if>
+      <if test="endTime !=null and endTime!='' ">
+        and  o.order_time &lt;=#{endTime}
+      </if>
+    </where>
+
+  </select>
+
+</mapper>

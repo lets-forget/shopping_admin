@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ning.home_admin.sytem.mapper.UserMapper">
+  <resultMap id="BaseResultMap" type="com.ning.home_admin.sytem.pojo.User">
+    <id column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="sex" jdbcType="INTEGER" property="sex" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="last_time" jdbcType="TIMESTAMP" property="lastTime" />
+    <result column="avatar" jdbcType="VARCHAR" property="avatar" />
+    <result column="describes" jdbcType="VARCHAR" property="describes" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from admin_user
+    where user_id = #{userId,jdbcType=INTEGER}
+  </delete>
+  <!--删除前端用户-->
+  <delete id="userdelete" parameterType="java.lang.String">
+    delete from jd_user
+    <where>
+      <foreach collection="array" item="id" open="user_id in(" close=")" separator=",">
+        #{id}
+      </foreach>
+    </where>
+  </delete>
+  <!--删除后台用户-->
+  <delete id="admindelete" parameterType="java.lang.String">
+    delete from admin_user
+    <where>
+      <foreach collection="array" item="id" open="user_id in(" close=")" separator=",">
+        #{id}
+      </foreach>
+    </where>
+  </delete>
+  <insert id="insert" parameterType="com.ning.home_admin.sytem.pojo.User">
+    insert into admin_user (user_id, username, password, 
+      email, sex, phone, 
+      status, create_time, update_time, 
+      last_time, avatar, describes
+      )
+    values (#{userId,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{email,jdbcType=VARCHAR}, #{sex,jdbcType=INTEGER}, #{phone,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{lastTime,jdbcType=TIMESTAMP}, #{avatar,jdbcType=VARCHAR}, #{describe,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.ning.home_admin.sytem.pojo.User">
+    update admin_user
+    set
+      email = #{email,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=INTEGER},
+      phone = #{phone,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      describes = #{describes,jdbcType=VARCHAR}
+    where user_id = #{userId,jdbcType=INTEGER}
+  </update>
+  <!--更新登录时间-->
+  <update id="updateLoginTime">
+    update admin_user
+    set
+    last_time=#{param2}
+    where username = #{param1}
+  </update>
+  <!--修改前台用户-->
+  <update id="updatejd_user" parameterType="com.ning.home_admin.sytem.pojo.User">
+    update jd_user
+    set username = #{username,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=INTEGER},
+      phone = #{phone,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      describes = #{describes,jdbcType=VARCHAR}
+    where user_id = #{userId,jdbcType=INTEGER}
+  </update>
+  <!--修改头像-->
+  <update id="updateAvatar">
+    update admin_user
+    set avatar = #{param2}
+    where user_id = #{param1}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select user_id, username, password, email, sex, phone, status, create_time, update_time, 
+    last_time, avatar, describes,code
+    from admin_user
+    where user_id = #{userId,jdbcType=INTEGER}
+  </select>
+  <!--根据用户名查询-->
+  <select id="findByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+
+            SELECT
+        u.user_id ,
+        u.username,
+        u.email,
+        u.phone,
+        u.password,
+        u.status,
+        u.create_time,
+        u.sex,
+        u.last_time ,
+        u.update_time ,
+        u.describes,
+        u.avatar,
+        GROUP_CONCAT(r.role_id) roleId,
+        GROUP_CONCAT(r.role_name) roleName
+        FROM
+        admin_user u
+        LEFT JOIN admin_user_role ur ON (u.user_id = ur.user_id)
+        LEFT JOIN admin_role r ON r.role_id = ur.role_id
+        WHERE  u.username = #{username}
+  </select>
+  <select id="selectByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select user_id, username, password, email, sex, phone, status, create_time, update_time,
+    last_time, avatar, describes,code
+    from jd_user
+    where username = #{username}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    SELECT
+    u.*,r.role_name as roleName
+    FROM
+    admin_user u
+    LEFT JOIN admin_user_role ur ON (u.user_id = ur.user_id)
+    LEFT JOIN admin_role r ON r.role_id = ur.role_id
+
+    <where>
+      <if test="username !=null and username != '' ">
+        u.username like concat('%',#{username},'%')
+      </if>
+      <if test="startTime !=null and startTime!='' ">
+        and u.create_time &gt;=#{startTime}
+      </if>
+      <if test="endTime !=null and endTime!='' ">
+        and  u.create_time &lt;=#{endTime}
+      </if>
+    </where>
+  </select>
+  <!--根据条件查询所有的用户-->
+  <select id="findUserAll" resultMap="BaseResultMap">
+    select user_id, username, password, email, sex, phone, status, create_time, update_time,
+    last_time, avatar, describes,code
+    from jd_user
+    <where>
+      <if test="username !=null and username != '' ">
+        username like concat('%',#{username},'%')
+      </if>
+      <if test="startTime !=null and startTime!='' ">
+        and create_time &gt;=#{startTime}
+      </if>
+      <if test="endTime !=null and endTime!='' ">
+        and  create_time &lt;=#{endTime}
+      </if>
+    </where>
+  </select>
+  <update id="updateStatus" parameterType="java.lang.Integer">
+      update jd_user set
+      <if test="flag == true">
+        status=1
+      </if>
+      <if test="flag == false">
+        status=0
+      </if>
+      where user_id=#{id}
+  </update>
+</mapper>

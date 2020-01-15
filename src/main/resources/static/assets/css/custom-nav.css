@@ -1,0 +1,52 @@
+/*分辨率768以下适配*/
+@media screen and (max-width: 768px){
+	/*最外层版块控制*/
+	.layui-layout-admin {
+	    left: -180px;
+	}
+	
+	/*遮罩层*/
+	.layui-layout-admin.admin-nav-mini .site-mobile-shade{
+		left: 180px;
+	}
+}
+
+/*顶部栏logo*/
+.layui-layout-admin .layui-header .layui-logo{
+	width: 180px;
+}
+.layui-layout-admin .layui-header .layui-logo img{
+	height: 32px;
+}
+.layui-layout-admin .layui-header .layui-layout-left{
+	left: 180px;
+}
+@media screen and (min-width: 769px){
+	.layui-layout-admin.admin-nav-mini .layui-header .layui-logo {
+	    width: 180px !important;
+	}
+	.layui-layout-admin.admin-nav-mini .layui-header .layui-layout-left {
+	    left: 180px !important;
+	}
+}
+
+/*左目录栏*/
+.layui-layout-admin .layui-side{
+	width: 180px;
+}
+.layui-layout-admin .layui-side .layui-side-scroll{
+	width: 200px;
+}
+.layui-layout-admin .layui-side .layui-nav{
+	width: 180px;
+}
+
+/*右内容区*/
+.layui-layout-admin .layui-body{
+	left: 180px;
+}
+
+/*底部栏*/
+.layui-layout-admin .layui-footer{
+	left: 180px;
+}
