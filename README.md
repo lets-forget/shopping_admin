@@ -23,3 +23,4 @@ shopping_admin是商城后台管理系统，使用Spring Boot，Shiro和Layui构
    ├─后台用户
    └─角色管理
 ```
+sql文件在 https://github.com/NingKangWen/shopping 该项目下
